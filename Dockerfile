@@ -46,3 +46,17 @@ rm /tmp/micro-ecc_v1.0.zip
 RUN apt-get update && apt-get install -y python-pip && \
 pip install nrfutil
 
+# Install clang-format & clang-tidy: https://stackoverflow.com/questions/20756924/how-can-i-install-clang-format-in-ubuntu
+RUN curl https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
+echo "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic main" >> /etc/apt/sources.list && \
+echo "deb-src http://apt.llvm.org/bionic/ llvm-toolchain-bionic main" >> /etc/apt/sources.list && \
+apt update && \
+apt install -y clang-format clang-tidy
+
+# Install cpp-check https://github.com/danmar/cppcheck/
+RUN curl -SL https://github.com/danmar/cppcheck/archive/2.5.tar.gz > /tmp/cppcheck-2.5.tar.gz && \
+tar -xvzf /tmp/cppcheck-2.5.tar.gz -C /tmp && \
+cd /tmp/cppcheck-2.5 && \
+make MATCHCOMPILER=yes FILESDIR=/usr/share/cppcheck HAVE_RULES=yes CXXFLAGS="-O2 -DNDEBUG -Wall -Wno-sign-compare -Wno-unused-function" && \
+cp cppcheck /usr/local/bin/cppcheck && \
+rm -rf /tmp/cppcheck-2.5/*
